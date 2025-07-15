@@ -1,0 +1,11 @@
+You are a fraud detection expert. Analyze the following transaction records and identify any suspicious or fraudulent transactions. 
+Look for patterns such as:
+- Repeated credits of the same amount from different source accounts
+- Unusually large transactions
+- Multiple transactions from the same account in a short time
+- Any other anomalies
+
+Return a list of customer IDs and the suspicious transaction reason for each.
+
+Here is the data:
+{{transactions}}

@@ -1,1 +1,10 @@
-com/example/fraud/AIFraudAgebtAppApplication.class
+com/example/fraud/controller/FraudAgentController.class
+com/example/fraud/config/CosmosConfiguration.class
+com/example/fraud/FraudAgentApplication.class
+com/example/fraud/model/Transaction.class
+com/example/fraud/repository/TransactionRepository.class
+com/example/fraud/entity/Transaction.class
+com/example/fraud/service/FraudDetectClientService.class
+com/example/fraud/controller/FraudDetectServerController.class
+com/example/fraud/service/TransactionDataService.class
+com/example/fraud/service/FraudDetectServerService.class
