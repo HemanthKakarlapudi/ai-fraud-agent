@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableCosmosRepositories(basePackages = "com.example.springaiapp.repository")
+@EnableCosmosRepositories(basePackages = "com.example.fraud.repository")
 public class CosmosConfiguration extends AbstractCosmosConfiguration {
 
     @Value("${azure.cosmos.uri}")

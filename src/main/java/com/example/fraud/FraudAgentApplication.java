@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-//@EnableCosmosRepositories(basePackages = "com.example.springaiapp.repository")
 public class FraudAgentApplication {
 
 	public static void main(String[] args) {
