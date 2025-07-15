@@ -1,6 +1,7 @@
 package com.example.fraud.service;
 
 import com.example.fraud.model.Transaction;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class FraudDetectClientService {
 
     public ResponseEntity<String> detectFraudFromMcpServer() {
         try {
-            String mcpServerUrl = "http://localhost:8090/api/server/fraud/transactions"; // Update if needed
+            String mcpServerUrl = MCP_SERVER_URL; // Update if needed
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<Transaction[]> response = restTemplate.getForEntity(mcpServerUrl, Transaction[].class);
 
@@ -62,53 +63,82 @@ public class FraudDetectClientService {
     }
 
     public ResponseEntity<String> getFraudTransactions(List<Transaction> transactions) {
-
         try {
-
+            // Build CSV sample from first 10 transactions
             StringBuilder csvSampleBuilder = new StringBuilder();
-            csvSampleBuilder.append("customer_id,account_id,transaction_amount,source_account,transaction_date,is_fraud\n");
+            csvSampleBuilder.append("customer_id,account_id,transaction_amount,source_account,transaction_date,transaction_id\n");
 
             int count = 0;
             for (Transaction tx : transactions) {
-                if (count++ >= 10) break; // Limit to first 10 for prompt
-                csvSampleBuilder.append(String.format("%s,%s,%.2f,%s,%s,%d\n",
+                if (count++ >= 10) break;
+                csvSampleBuilder.append(String.format("%s,%s,%.2f,%s,%s,%s\n",
                         tx.getCustomerId(),
                         tx.getAccountId(),
                         tx.getTransactionAmount(),
                         tx.getSourceAccount(),
                         tx.getTransactionDate(),
-                        tx.getIsFraud()));
+                        tx.getTransactionId()));
             }
 
-
+            // Load prompt and inject transaction data
             String promptTemplate = loadPromptTemplate("classpath:/prompts/prompts.txt");
             Map<String, Object> requestBody = getStringObjectMap(promptTemplate, csvSampleBuilder);
 
-
+            // Prepare headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", API_KEY);
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<Map> response = restTemplate.postForEntity(ENDPOINT, request, Map.class);
 
+            // Handle response
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
+                Map<String, Object> body = response.getBody();
+                List<Map<String, Object>> choices = (List<Map<String, Object>>) body.get("choices");
+
                 if (choices != null && !choices.isEmpty()) {
                     Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
                     if (message != null && message.containsKey("content")) {
-                        return ResponseEntity.ok((String) message.get("content"));
+                        String content = (String) message.get("content");
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        // Try parsing as JSON array or object
+                        content = content.trim();
+                        if (content.startsWith("[")) {
+                            List<Map<String, Object>> parsed = mapper.readValue(content, new TypeReference<>() {});
+                            return ResponseEntity.ok(mapper.writeValueAsString(parsed));
+                        } else if (content.startsWith("{")) {
+                            Map<String, Object> parsed = mapper.readValue(content, new TypeReference<>() {});
+                            return ResponseEntity.ok(mapper.writeValueAsString(parsed));
+                        } else {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body("Unexpected response format:\n" + content);
+                        }
                     }
                 }
             }
+
+            ////            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+////                List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
+////                if (choices != null && !choices.isEmpty()) {
+////                    Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+////                    if (message != null && message.containsKey("content")) {
+////                        return ResponseEntity.ok((String) message.get("content"));
+////                    }
+////                }
+////            }
+
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
         }
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No response from model.");
     }
+
 
     private static Map<String, Object> getStringObjectMap(String promptTemplate, StringBuilder csvSampleBuilder) {
         String prompt = promptTemplate.replace("{{transactions}}", csvSampleBuilder.toString());

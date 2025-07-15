@@ -38,7 +38,7 @@ public class TransactionDataService {
                 model.setCurrency(entity.getCurrency());
                 model.setTransactionType(entity.getTransaction_type());
                 model.setSourceAccount(entity.getSource_account());
-                model.setIsFraud(entity.getIs_fraud());
+                model.setTransactionId(entity.getTransactionId());
                 modelList.add(model);
             }
 

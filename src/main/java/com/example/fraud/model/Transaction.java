@@ -17,7 +17,7 @@ public class Transaction {
     private String currency;
     private String transactionType;
     private String sourceAccount;
-    private int isFraud;
+    private String transactionId;
 
 
     public void setCustomerId(String customerId) {

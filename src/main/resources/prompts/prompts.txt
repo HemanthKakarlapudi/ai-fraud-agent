@@ -1,11 +1,27 @@
-You are a fraud detection expert. Analyze the following transaction records and identify any suspicious or fraudulent transactions. 
-Look for patterns such as:
+You are a fraud detection expert. Analyze the following transaction records and identify any suspicious or fraudulent transactions. Look for patterns such as:
 - Repeated credits of the same amount from different source accounts
 - Unusually large transactions
 - Multiple transactions from the same account in a short time
 - Any other anomalies
 
-Return a list of customer IDs and the suspicious transaction reason for each.
+
+Return ONLY a valid JSON array of suspicious transactions in the following format:
+
+[
+  {
+    "customerId": "9999",
+    "transactions": [
+      {
+        "transaction_date": "2023-01-01",
+        "transaction_amount": 123.45
+      },
+      ...
+    ],
+    "reason": "Repeated credits of the same amount (123.45) from different source accounts over consecutive days."
+  }
+]
+
+Do not include any explanation, markdown formatting, or additional commentary. Just return the JSON array.
 
 Here is the data:
 {{transactions}}

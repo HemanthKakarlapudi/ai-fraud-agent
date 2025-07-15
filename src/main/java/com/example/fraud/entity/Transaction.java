@@ -20,5 +20,5 @@ public class Transaction {
     private String currency;
     private String transaction_type;
     private String source_account;
-    private int is_fraud;
+
 }
