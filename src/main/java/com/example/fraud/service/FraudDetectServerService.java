@@ -35,8 +35,8 @@ public class FraudDetectServerService {
     private TransactionDataService transactionService;
 
 
-    private static final String ENDPOINT = "https://aihemanthhub1895302180.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-12-01-preview";
-    private static final String API_KEY = "BLIW7wHIjo4vNQ5HbQda5bJfWWq5Tgir8ZgWpMfEQsu2kXUwlaf6JQQJ99BGAC5RqLJXJ3w3AAAAACOGTtM5";
+    private static final String ENDPOINT = "";
+    private static final String API_KEY = "";
 
 
     public void loadTransactionData() throws IOException {
