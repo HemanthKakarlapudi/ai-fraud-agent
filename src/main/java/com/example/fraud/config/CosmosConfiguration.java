@@ -15,7 +15,7 @@ public class CosmosConfiguration extends AbstractCosmosConfiguration {
     @Value("${azure.cosmos.uri}")
     private String uri;
 
-    @Value("${azure.cosmos.auth}")
+    @Value("${azure.cosmos.key}")
     private String key;
 
     @Value("${azure.cosmos.database}")
