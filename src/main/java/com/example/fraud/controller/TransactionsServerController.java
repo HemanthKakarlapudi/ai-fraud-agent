@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/server/fraud")
-public class FraudDetectServerController {
+@RequestMapping("/api/server/")
+public class TransactionsServerController {
 
     @Autowired
     TransactionDataService transactionDataService;
 
-    @GetMapping("/transactions")
+    @GetMapping("/get-transactions")
     public ResponseEntity<List<Transaction>> getTransactions() throws IOException {
 //        return ResponseEntity.ok(fraudDetectService.getTransactionData());
         return ResponseEntity.ok(transactionDataService.getAllTransactions());

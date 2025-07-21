@@ -10,6 +10,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
@@ -41,26 +42,29 @@ public class FraudDetectClientService {
     private static final String ENDPOINT = "https://aihemanthhub1895302180.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-12-01-preview";
     private static final String API_KEY = "BLIW7wHIjo4vNQ5HbQda5bJfWWq5Tgir8ZgWpMfEQsu2kXUwlaf6JQQJ99BGAC5RqLJXJ3w3AAAAACOGTtM5";
 
-    private static final String MCP_SERVER_URL = "http://localhost:8090/api/server/fraud/transactions"; // Update if needed
-
+    private static final String MCP_SERVER_URL = "http://localhost:8090/api/server/get-transactions"; // Update if needed
 
     public ResponseEntity<String> detectFraudFromMcpServer() {
         try {
-            String mcpServerUrl = MCP_SERVER_URL; // Update if needed
+            String mcpServerUrl = MCP_SERVER_URL;
             RestTemplate restTemplate = new RestTemplate();
+
             ResponseEntity<Transaction[]> response = restTemplate.getForEntity(mcpServerUrl, Transaction[].class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 List<Transaction> transactions = Arrays.asList(response.getBody());
-                return getFraudTransactions(transactions); // Reuse your existing method
+                return getFraudTransactions(transactions); // Your fraud detection logic
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Failed to fetch transactions from MCP server.");
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                        .body("Failed to fetch transactions from MCP server.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
         }
     }
+
 
     public ResponseEntity<String> getFraudTransactions(List<Transaction> transactions) {
         try {
